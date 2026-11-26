@@ -39,7 +39,7 @@
         <div class="modal-card yellow-border">
             <button type="button" class="close-btn" onclick="closeModal('noteModal')">✕</button>
             <h3>📝 隨手小便條</h3>
-            <p class="modal-desc">寫下的內容會同步到雲端，有網址的人都能看見喔！</p>
+            <p class="modal-desc">寫下的內容會同步到雲端，只有本人可以刪除喔！</p>
             <textarea id="noteInput" rows="4" placeholder="分享現在的想法或靈感..." required></textarea>
             <button type="button" class="action-btn yellow" onclick="saveNote()">發佈這則筆記 ✨</button>
             <p class="status-msg" id="noteStatus"></p>
@@ -119,6 +119,17 @@
         const notesRef = ref(db, 'shared_notes');
         const msgsRef = ref(db, 'shared_msgs');
 
+        // 為目前這台裝置產生並記住專屬的隱藏通行碼（用於判斷是否為本人）
+        function getMyDeviceId() {
+            let myId = localStorage.getItem('cute_web_owner_id');
+            if (!myId) {
+                myId = 'user_' + Date.now() + '_' + Math.random().toString(36).substring(2, 10);
+                localStorage.setItem('cute_web_owner_id', myId);
+            }
+            return myId;
+        }
+        const myOwnerId = getMyDeviceId();
+
         let notesData = [];
         let msgsData = [];
         let currentTab = 'notes';
@@ -156,7 +167,8 @@
             try {
                 await push(notesRef, {
                     text: text,
-                    time: getNowTime()
+                    time: getNowTime(),
+                    ownerId: myOwnerId
                 });
                 input.value = "";
                 status.textContent = "已發佈！大家都能看到囉 🧸";
@@ -185,7 +197,8 @@
                 await push(msgsRef, {
                     sender: sender,
                     text: text,
-                    time: getNowTime()
+                    time: getNowTime(),
+                    ownerId: myOwnerId
                 });
                 senderInput.value = "";
                 msgInput.value = "";
@@ -212,6 +225,14 @@
         };
 
         window.deleteItem = function(type, key) {
+            const targetList = type === 'notes' ? notesData : msgsData;
+            const targetItem = targetList.find(item => item.key === key);
+
+            // 雙重確認：只有本人發佈的才能刪除
+            if (!targetItem || targetItem.ownerId !== myOwnerId) {
+                return;
+            }
+
             if (type === 'notes') {
                 remove(ref(db, `shared_notes/${key}`));
             } else {
@@ -237,13 +258,14 @@
                     return;
                 }
                 notesData.forEach(item => {
+                    const isMine = item.ownerId === myOwnerId;
                     const div = document.createElement('div');
                     div.className = 'diary-card note-style';
                     div.innerHTML = `
                         <div class="tape"></div>
                         <div class="diary-top">
                             <span class="time-chip">🗓️ ${item.time}</span>
-                            <button type="button" class="del-icon-btn" title="刪除" onclick="deleteItem('notes', '${item.key}')">✕</button>
+                            ${isMine ? `<button type="button" class="del-icon-btn" title="刪除" onclick="deleteItem('notes', '${item.key}')">✕</button>` : ''}
                         </div>
                         <p class="diary-body"></p>
                     `;
@@ -261,6 +283,7 @@
                     return;
                 }
                 msgsData.forEach(item => {
+                    const isMine = item.ownerId === myOwnerId;
                     const div = document.createElement('div');
                     div.className = 'diary-card msg-style';
                     div.innerHTML = `
@@ -271,7 +294,7 @@
                             </div>
                             <div class="right-meta">
                                 <span class="time-text">${item.time}</span>
-                                <button type="button" class="del-icon-btn" title="刪除" onclick="deleteItem('msgs', '${item.key}')">✕</button>
+                                ${isMine ? `<button type="button" class="del-icon-btn" title="刪除" onclick="deleteItem('msgs', '${item.key}')">✕</button>` : ''}
                             </div>
                         </div>
                         <p class="diary-body"></p>
