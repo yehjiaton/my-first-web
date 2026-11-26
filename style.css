@@ -1,0 +1,137 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Noto Sans TC', sans-serif;
+    /* 柔和的奶油米色點點背景 */
+    background-color: #fdf8f5;
+    background-image: radial-gradient(#e8dcd5 1.5px, transparent 1.5px);
+    background-size: 24px 24px;
+    color: #5c5450;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+}
+
+/* 主卡片容器 */
+.card-box {
+    background-color: #ffffff;
+    width: 100%;
+    max-width: 560px;
+    padding: 36px 28px;
+    border-radius: 32px;
+    border: 3px solid #f2e6df;
+    box-shadow: 0 12px 0 #f2e6df; /* 可愛的立體厚底陰影 */
+    text-align: center;
+}
+
+/* 頂部 Emoji 貼紙 */
+.sticker {
+    font-size: 1.8rem;
+    letter-spacing: 6px;
+    margin-bottom: 12px;
+}
+
+.mood-text {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #7a6f69;
+    margin-bottom: 28px;
+}
+
+/* 馬卡龍按鈕列 */
+.btn-group {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 32px;
+}
+
+.cute-btn {
+    text-decoration: none;
+    color: #5c5450;
+    font-weight: 700;
+    font-size: 0.92rem;
+    padding: 12px 16px;
+    border-radius: 18px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* 四種馬卡龍配色 */
+.cute-btn.pink {
+    background-color: #ffe4e6;
+    box-shadow: 0 4px 0 #fecdd3;
+}
+
+.cute-btn.yellow {
+    background-color: #fef3c7;
+    box-shadow: 0 4px 0 #fde68a;
+}
+
+.cute-btn.blue {
+    background-color: #e0f2fe;
+    box-shadow: 0 4px 0 #bae6fd;
+}
+
+.cute-btn.green {
+    background-color: #dcfce7;
+    box-shadow: 0 4px 0 #bbf7d0;
+}
+
+/* 滑鼠移過去像按鈕被按下去的 Q 彈效果 */
+.cute-btn:hover {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.08);
+}
+
+/* 拍立得圖片區 */
+.photo-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.polaroid {
+    background-color: #fffaf7;
+    padding: 10px 10px 14px;
+    border-radius: 20px;
+    border: 2px solid #f5ebe6;
+    transition: transform 0.2s ease;
+}
+
+/* 滑鼠移過去微微歪頭 */
+.polaroid:hover {
+    transform: rotate(-2deg) scale(1.02);
+}
+
+.polaroid:nth-child(even):hover {
+    transform: rotate(2deg) scale(1.02);
+}
+
+.polaroid img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 14px;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.polaroid span {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #8c7f79;
+}
+
+/* 手機版自動調整為單欄 */
+@media (max-width: 460px) {
+    .btn-group,
+    .photo-grid {
+        grid-template-columns: 1fr;
+    }
+}
