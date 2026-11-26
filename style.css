@@ -42,7 +42,7 @@ body {
     margin-bottom: 24px;
 }
 
-/* 四顆馬卡龍按鈕 */
+/* 馬卡龍按鈕列 */
 .btn-group {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -62,10 +62,15 @@ body {
     transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
+.cute-btn.full-span {
+    grid-column: span 2;
+}
+
 .cute-btn.pink { background-color: #ffe4e6; box-shadow: 0 4px 0 #fecdd3; }
 .cute-btn.yellow { background-color: #fef3c7; box-shadow: 0 4px 0 #fde68a; }
 .cute-btn.blue { background-color: #e0f2fe; box-shadow: 0 4px 0 #bae6fd; }
 .cute-btn.green { background-color: #dcfce7; box-shadow: 0 4px 0 #bbf7d0; }
+.cute-btn.purple { background-color: #f3e8ff; box-shadow: 0 4px 0 #e9d5ff; }
 
 .cute-btn:hover {
     transform: translateY(2px);
@@ -148,9 +153,14 @@ body {
     animation: popIn 0.2s ease;
 }
 
+.modal-card.history-card {
+    max-width: 440px;
+}
+
 .modal-card.yellow-border { border-color: #fde68a; }
 .modal-card.blue-border { border-color: #bae6fd; }
 .modal-card.green-border { border-color: #bbf7d0; }
+.modal-card.purple-border { border-color: #e9d5ff; }
 
 @keyframes popIn {
     from { transform: scale(0.9); opacity: 0; }
@@ -260,8 +270,103 @@ body {
     min-height: 20px;
 }
 
+/* --- 回顧紀錄彈窗專用樣式 --- */
+.tab-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 14px 0;
+}
+
+.tab-btn {
+    padding: 9px;
+    border: 2px solid #f3e8ff;
+    background-color: #faf5ff;
+    border-radius: 14px;
+    font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #7a6f69;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.tab-btn.active {
+    background-color: #f3e8ff;
+    border-color: #d8b4fe;
+    color: #5c5450;
+}
+
+.history-list {
+    max-height: 290px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-right: 4px;
+    text-align: left;
+}
+
+.history-item {
+    padding: 12px 14px;
+    border-radius: 16px;
+    font-size: 0.9rem;
+}
+
+.history-item.yellow-bg {
+    background-color: #fffbeb;
+    border: 1.5px solid #fde68a;
+}
+
+.history-item.green-bg {
+    background-color: #f0fdf4;
+    border: 1.5px solid #bbf7d0;
+}
+
+.item-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.78rem;
+    color: #8c7f79;
+    margin-bottom: 6px;
+}
+
+.item-text {
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.5;
+    color: #5c5450;
+}
+
+.del-btn {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    color: #9ca3af;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.del-btn:hover {
+    color: #ef4444;
+    border-color: #fca5a5;
+}
+
+.empty-tip {
+    text-align: center;
+    color: #a89f9a;
+    font-size: 0.88rem;
+    padding: 32px 12px;
+}
+
 @media (max-width: 420px) {
     .btn-group {
         grid-template-columns: 1fr;
+    }
+    .cute-btn.full-span {
+        grid-column: span 1;
     }
 }

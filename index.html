@@ -13,12 +13,13 @@
         <div class="sticker">🧸 ☁️ 🌱</div>
         <p class="mood-text">今天也是慢慢寫扣、喝杯奶茶的一天</p>
 
-        <!-- 四顆可愛按鈕 -->
+        <!-- 五顆可愛按鈕（第 5 顆回顧紀錄自動橫跨兩欄） -->
         <nav class="btn-group">
             <button type="button" class="cute-btn pink" onclick="nextPhoto()">🔄 換一張</button>
             <button type="button" class="cute-btn yellow" onclick="openModal('noteModal')">📝 隨手筆記</button>
             <button type="button" class="cute-btn blue" onclick="openModal('musicModal')">🎧 正在聽的歌</button>
             <button type="button" class="cute-btn green" onclick="openModal('msgModal')">💌 傳個訊息</button>
+            <button type="button" class="cute-btn purple full-span" onclick="openHistoryModal()">📖 回顧筆記與訊息</button>
         </nav>
 
         <!-- 單張拍立得展示區 -->
@@ -38,9 +39,9 @@
         <div class="modal-card yellow-border">
             <button type="button" class="close-btn" onclick="closeModal('noteModal')">✕</button>
             <h3>📝 隨手小便條</h3>
-            <p class="modal-desc">寫下今天的靈感，會自動幫你存在瀏覽器裡喔！</p>
-            <textarea id="noteInput" rows="5" placeholder="在這裡輸入文字..."></textarea>
-            <button type="button" class="action-btn yellow" onclick="saveNote()">儲存筆記 ✨</button>
+            <p class="modal-desc">每次儲存都會新增一則紀錄，之後可點「回顧」查看！</p>
+            <textarea id="noteInput" rows="4" placeholder="寫下現在的想法或靈感..." required></textarea>
+            <button type="button" class="action-btn yellow" onclick="saveNote()">儲存這則筆記 ✨</button>
             <p class="status-msg" id="noteStatus"></p>
         </div>
     </div>
@@ -67,7 +68,7 @@
             <button type="button" class="close-btn" onclick="closeModal('msgModal')">✕</button>
             <h3>💌 丟個小紙條給我</h3>
             <form onsubmit="sendMessage(event)">
-                <input type="text" id="senderInput" placeholder="你的暱稱（選填）">
+                <input type="text" id="senderInput" placeholder="你的暱稱（沒填會顯示匿名小可愛）">
                 <textarea id="msgInput" rows="3" placeholder="想說什麼都可以..." required></textarea>
                 <button type="submit" class="action-btn green">發送紙條 🚀</button>
             </form>
@@ -75,44 +76,38 @@
         </div>
     </div>
 
+    <!-- 彈窗 4：回顧筆記與訊息 -->
+    <div class="modal-overlay" id="historyModal" onclick="closeOnOutside(event, 'historyModal')">
+        <div class="modal-card purple-border history-card">
+            <button type="button" class="close-btn" onclick="closeModal('historyModal')">✕</button>
+            <h3>📖 時光回顧本</h3>
+            
+            <!-- 切換分頁按鈕 -->
+            <div class="tab-bar">
+                <button type="button" id="tabNotes" class="tab-btn active" onclick="switchTab('notes')">📝 筆記紀錄 (<span id="noteCount">0</span>)</button>
+                <button type="button" id="tabMsgs" class="tab-btn" onclick="switchTab('msgs')">💌 收到紙條 (<span id="msgCount">0</span>)</button>
+            </div>
+
+            <!-- 紀錄清單顯示區 -->
+            <div id="historyList" class="history-list"></div>
+        </div>
+    </div>
+
     <script>
         // 8 張精選可愛日常照片庫
         const photos = [
-            {
-                url: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=700&q=80",
-                title: "發呆時間 🐾"
-            },
-            {
-                url: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=700&q=80",
-                title: "下午茶補給 ☕"
-            },
-            {
-                url: "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?auto=format&fit=crop&w=700&q=80",
-                title: "桌邊小盆栽 🌿"
-            },
-            {
-                url: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&w=700&q=80",
-                title: "週末閱讀 📖"
-            },
-            {
-                url: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=700&q=80",
-                title: "散步遇到的小狗 🐶"
-            },
-            {
-                url: "https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=700&q=80",
-                title: "甜甜圈療癒日 🍩"
-            },
-            {
-                url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=700&q=80",
-                title: "去看海吹風 🌊"
-            },
-            {
-                url: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=700&q=80",
-                title: "隨手塗鴉色彩 🎨"
-            }
+            { url: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=700&q=80", title: "發呆時間 🐾" },
+            { url: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=700&q=80", title: "下午茶補給 ☕" },
+            { url: "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?auto=format&fit=crop&w=700&q=80", title: "桌邊小盆栽 🌿" },
+            { url: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&w=700&q=80", title: "週末閱讀 📖" },
+            { url: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=700&q=80", title: "散步遇到的小狗 🐶" },
+            { url: "https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=700&q=80", title: "甜甜圈療癒日 🍩" },
+            { url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=700&q=80", title: "去看海吹風 🌊" },
+            { url: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=700&q=80", title: "隨手塗鴉色彩 🎨" }
         ];
 
         let currentIndex = 0;
+        let currentTab = 'notes';
 
         // 切換下一張照片
         function nextPhoto() {
@@ -137,32 +132,150 @@
             }
         }
 
-        // 讀取與儲存筆記
-        window.onload = function() {
-            const savedNote = localStorage.getItem('myCuteNote');
-            if (savedNote) {
-                document.getElementById('noteInput').value = savedNote;
-            }
-        };
-
-        function saveNote() {
-            const text = document.getElementById('noteInput').value;
-            localStorage.setItem('myCuteNote', text);
-            const status = document.getElementById('noteStatus');
-            status.textContent = "已成功存好囉！🧸";
-            setTimeout(() => status.textContent = "", 2500);
+        // 取得現在時間字串 (例如：2026/11/26 14:25)
+        function getNowTime() {
+            const now = new Date();
+            const y = now.getFullYear();
+            const m = String(now.getMonth() + 1).padStart(2, '0');
+            const d = String(now.getDate()).padStart(2, '0');
+            const hh = String(now.getHours()).padStart(2, '0');
+            const mm = String(now.getMinutes()).padStart(2, '0');
+            return `${y}/${m}/${d} ${hh}:${mm}`;
         }
 
-        // 傳送小紙條
+        // 讀取紀錄陣列
+        function getNotes() {
+            return JSON.parse(localStorage.getItem('cuteNotesList') || '[]');
+        }
+
+        function getMessages() {
+            return JSON.parse(localStorage.getItem('cuteMsgsList') || '[]');
+        }
+
+        // 1. 儲存新筆記（追加到最前面）
+        function saveNote() {
+            const input = document.getElementById('noteInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const notes = getNotes();
+            notes.unshift({
+                id: Date.now(),
+                text: text,
+                time: getNowTime()
+            });
+            localStorage.setItem('cuteNotesList', JSON.stringify(notes));
+
+            input.value = "";
+            const status = document.getElementById('noteStatus');
+            status.textContent = "已存進回顧本囉！🧸";
+            setTimeout(() => {
+                status.textContent = "";
+                closeModal('noteModal');
+            }, 1200);
+        }
+
+        // 2. 發送新訊息（追加到最前面）
         function sendMessage(event) {
             event.preventDefault();
+            const senderInput = document.getElementById('senderInput');
+            const msgInput = document.getElementById('msgInput');
+            
+            const sender = senderInput.value.trim() || "匿名小可愛";
+            const text = msgInput.value.trim();
+            if (!text) return;
+
+            const msgs = getMessages();
+            msgs.unshift({
+                id: Date.now(),
+                sender: sender,
+                text: text,
+                time: getNowTime()
+            });
+            localStorage.setItem('cuteMsgsList', JSON.stringify(msgs));
+
+            senderInput.value = "";
+            msgInput.value = "";
             const status = document.getElementById('msgStatus');
-            status.textContent = "收到你的小紙條了！謝謝你 💌";
-            document.getElementById('msgInput').value = "";
+            status.textContent = "紙條已投遞進回顧本！💌";
             setTimeout(() => {
                 status.textContent = "";
                 closeModal('msgModal');
-            }, 1600);
+            }, 1200);
+        }
+
+        // 3. 開啟回顧彈窗並渲染清單
+        function openHistoryModal() {
+            openModal('historyModal');
+            renderHistory();
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.getElementById('tabNotes').classList.toggle('active', tab === 'notes');
+            document.getElementById('tabMsgs').classList.toggle('active', tab === 'msgs');
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const notes = getNotes();
+            const msgs = getMessages();
+            document.getElementById('noteCount').textContent = notes.length;
+            document.getElementById('msgCount').textContent = msgs.length;
+
+            const listEl = document.getElementById('historyList');
+            listEl.innerHTML = "";
+
+            if (currentTab === 'notes') {
+                if (notes.length === 0) {
+                    listEl.innerHTML = `<p class="empty-tip">還沒有寫過筆記喔，點「📝 隨手筆記」記下第一則吧！</p>`;
+                    return;
+                }
+                notes.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'history-item yellow-bg';
+                    div.innerHTML = `
+                        <div class="item-meta">
+                            <span>🕒 ${item.time}</span>
+                            <button type="button" class="del-btn" onclick="deleteItem('notes', ${item.id})">刪除</button>
+                        </div>
+                        <p class="item-text"></p>
+                    `;
+                    div.querySelector('.item-text').textContent = item.text;
+                    listEl.appendChild(div);
+                });
+            } else {
+                if (msgs.length === 0) {
+                    listEl.innerHTML = `<p class="empty-tip">信箱還是空的，點「💌 傳個訊息」留一張紙條吧！</p>`;
+                    return;
+                }
+                msgs.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'history-item green-bg';
+                    div.innerHTML = `
+                        <div class="item-meta">
+                            <span>🧸 <strong class="sender-name"></strong> · ${item.time}</span>
+                            <button type="button" class="del-btn" onclick="deleteItem('msgs', ${item.id})">刪除</button>
+                        </div>
+                        <p class="item-text"></p>
+                    `;
+                    div.querySelector('.sender-name').textContent = item.sender;
+                    div.querySelector('.item-text').textContent = item.text;
+                    listEl.appendChild(div);
+                });
+            }
+        }
+
+        // 刪除單筆紀錄
+        function deleteItem(type, id) {
+            if (type === 'notes') {
+                const updated = getNotes().filter(item => item.id !== id);
+                localStorage.setItem('cuteNotesList', JSON.stringify(updated));
+            } else {
+                const updated = getMessages().filter(item => item.id !== id);
+                localStorage.setItem('cuteMsgsList', JSON.stringify(updated));
+            }
+            renderHistory();
         }
     </script>
 
