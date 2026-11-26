@@ -11,54 +11,15 @@
 
     <main class="card-box">
         <div class="sticker">🧸 ☁️ 🌱</div>
-        <p class="mood-text" id="moodText">今天也是慢慢寫扣、喝杯奶茶的一天 🧋</p>
+        <p class="mood-text">今天也是慢慢寫扣、喝杯奶茶的一天 🧋</p>
 
         <!-- 四顆可愛按鈕 -->
         <nav class="btn-group">
             <button type="button" class="cute-btn pink" onclick="nextPhoto()">🔄 換一張</button>
-            <button type="button" class="cute-btn yellow" onclick="togglePanel('notePanel')">📝 隨手筆記</button>
-            <button type="button" class="cute-btn blue" onclick="togglePanel('musicPanel')">🎧 正在聽的歌</button>
-            <button type="button" class="cute-btn green" onclick="togglePanel('msgPanel')">💌 傳個訊息</button>
+            <button type="button" class="cute-btn yellow" onclick="openModal('noteModal')">📝 隨手筆記</button>
+            <button type="button" class="cute-btn blue" onclick="openModal('musicModal')">🎧 正在聽的歌</button>
+            <button type="button" class="cute-btn green" onclick="openModal('msgModal')">💌 傳個訊息</button>
         </nav>
-
-        <!-- 點擊按鈕後才展開的互動面板區（預設全部隱藏） -->
-        <section id="notePanel" class="panel yellow-border" hidden>
-            <div class="panel-header">
-                <strong>📝 隨手小便條</strong>
-                <button type="button" class="close-tag" onclick="closeAllPanels()">收起 ✕</button>
-            </div>
-            <textarea id="noteInput" rows="4" placeholder="在這裡寫下今天的靈感，會自動儲存在瀏覽器裡..."></textarea>
-            <button type="button" class="action-btn yellow" onclick="saveNote()">儲存筆記 ✨</button>
-            <p class="status-msg" id="noteStatus"></p>
-        </section>
-
-        <section id="musicPanel" class="panel blue-border" hidden>
-            <div class="panel-header">
-                <strong>🎧 今日循環播放</strong>
-                <button type="button" class="close-tag" onclick="closeAllPanels()">收起 ✕</button>
-            </div>
-            <div class="music-box">
-                <span class="vinyl">💿</span>
-                <div>
-                    <strong>Lo-Fi 寫扣專用純音樂</strong>
-                    <p>適合配著雨聲與熱奶茶一起聽 🎶</p>
-                </div>
-            </div>
-            <a href="https://www.youtube.com/results?search_query=lofi+hip+hop+radio" target="_blank" class="action-btn blue">前往 YouTube 聽歌 ↗</a>
-        </section>
-
-        <section id="msgPanel" class="panel green-border" hidden>
-            <div class="panel-header">
-                <strong>💌 丟個小紙條給我</strong>
-                <button type="button" class="close-tag" onclick="closeAllPanels()">收起 ✕</button>
-            </div>
-            <form onsubmit="sendMessage(event)">
-                <input type="text" id="senderInput" placeholder="你的暱稱（選填）">
-                <textarea id="msgInput" rows="3" placeholder="想說什麼都可以..." required></textarea>
-                <button type="submit" class="action-btn green">發送紙條 🚀</button>
-            </form>
-            <p class="status-msg" id="msgStatus"></p>
-        </section>
 
         <!-- 單張拍立得展示區 -->
         <section class="single-photo-wrap">
@@ -71,6 +32,48 @@
             </div>
         </section>
     </main>
+
+    <!-- 彈窗 1：隨手筆記 -->
+    <div class="modal-overlay" id="noteModal" onclick="closeOnOutside(event, 'noteModal')">
+        <div class="modal-card yellow-border">
+            <button type="button" class="close-btn" onclick="closeModal('noteModal')">✕</button>
+            <h3>📝 隨手小便條</h3>
+            <p class="modal-desc">寫下今天的靈感，會自動幫你存在瀏覽器裡喔！</p>
+            <textarea id="noteInput" rows="5" placeholder="在這裡輸入文字..."></textarea>
+            <button type="button" class="action-btn yellow" onclick="saveNote()">儲存筆記 ✨</button>
+            <p class="status-msg" id="noteStatus"></p>
+        </div>
+    </div>
+
+    <!-- 彈窗 2：正在聽的歌 -->
+    <div class="modal-overlay" id="musicModal" onclick="closeOnOutside(event, 'musicModal')">
+        <div class="modal-card blue-border">
+            <button type="button" class="close-btn" onclick="closeModal('musicModal')">✕</button>
+            <h3>🎧 今日循環播放</h3>
+            <div class="music-box">
+                <span class="vinyl">💿</span>
+                <div>
+                    <strong>Lo-Fi 寫扣專用純音樂</strong>
+                    <p>適合配著雨聲與熱奶茶一起聽 🎶</p>
+                </div>
+            </div>
+            <a href="https://www.youtube.com/results?search_query=lofi+hip+hop+radio" target="_blank" class="action-btn blue">前往 YouTube 聽歌 ↗</a>
+        </div>
+    </div>
+
+    <!-- 彈窗 3：傳個訊息 -->
+    <div class="modal-overlay" id="msgModal" onclick="closeOnOutside(event, 'msgModal')">
+        <div class="modal-card green-border">
+            <button type="button" class="close-btn" onclick="closeModal('msgModal')">✕</button>
+            <h3>💌 丟個小紙條給我</h3>
+            <form onsubmit="sendMessage(event)">
+                <input type="text" id="senderInput" placeholder="你的暱稱（選填）">
+                <textarea id="msgInput" rows="3" placeholder="想說什麼都可以..." required></textarea>
+                <button type="submit" class="action-btn green">發送紙條 🚀</button>
+            </form>
+            <p class="status-msg" id="msgStatus"></p>
+        </div>
+    </div>
 
     <script>
         // 8 張精選可愛日常照片庫
@@ -114,31 +117,24 @@
         // 切換下一張照片
         function nextPhoto() {
             currentIndex = (currentIndex + 1) % photos.length;
-            const img = document.getElementById('mainPhoto');
-            const title = document.getElementById('photoTitle');
-            const counter = document.getElementById('photoCounter');
-
-            img.src = photos[currentIndex].url;
-            title.textContent = photos[currentIndex].title;
-            counter.textContent = `${currentIndex + 1} / ${photos.length}`;
+            document.getElementById('mainPhoto').src = photos[currentIndex].url;
+            document.getElementById('photoTitle').textContent = photos[currentIndex].title;
+            document.getElementById('photoCounter').textContent = `${currentIndex + 1} / ${photos.length}`;
         }
 
-        // 點擊按鈕顯示/隱藏對應面板（同時只會展開一個）
-        function togglePanel(panelId) {
-            const target = document.getElementById(panelId);
-            const isCurrentlyHidden = target.hidden;
+        // 開啟與關閉彈窗
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
 
-            closeAllPanels();
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
 
-            if (isCurrentlyHidden) {
-                target.hidden = false;
+        function closeOnOutside(event, id) {
+            if (event.target.id === id) {
+                closeModal(id);
             }
-        }
-
-        function closeAllPanels() {
-            document.querySelectorAll('.panel').forEach(panel => {
-                panel.hidden = true;
-            });
         }
 
         // 讀取與儲存筆記
@@ -165,7 +161,7 @@
             document.getElementById('msgInput').value = "";
             setTimeout(() => {
                 status.textContent = "";
-                closeAllPanels();
+                closeModal('msgModal');
             }, 1600);
         }
     </script>
