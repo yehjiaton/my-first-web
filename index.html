@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>小角落 ✨</title>
-    <link rel="stylesheet" href="style.css">
+    <!-- 加上 ?v=3 強制瀏覽器讀取最新樣式表 -->
+    <link rel="stylesheet" href="style.css?v=3">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -79,6 +80,11 @@
     <!-- 彈窗 4：升級版手帳風時光回顧本 -->
     <div class="modal-overlay" id="historyModal" onclick="closeOnOutside(event, 'historyModal')">
         <div class="modal-card history-card">
+            <!-- 頂部手帳活頁孔裝飾 -->
+            <div class="binder-rings">
+                <span></span><span></span><span></span><span></span><span></span>
+            </div>
+
             <button type="button" class="close-btn" onclick="closeModal('historyModal')">✕</button>
             
             <div class="history-header">
