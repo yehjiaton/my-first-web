@@ -13,104 +13,135 @@
         <div class="sticker">🧸 ☁️ 🌱</div>
         <p class="mood-text" id="moodText">今天也是慢慢寫扣、喝杯奶茶的一天 🧋</p>
 
-        <!-- 可真實操作的四顆按鈕 -->
+        <!-- 四顆可愛按鈕 -->
         <nav class="btn-group">
-            <button type="button" class="cute-btn pink" onclick="shufflePhotos()">📸 隨機洗牌照片</button>
-            <button type="button" class="cute-btn yellow" onclick="openModal('noteModal')">📝 隨手筆記</button>
-            <button type="button" class="cute-btn blue" onclick="openModal('musicModal')">🎧 正在聽的歌</button>
-            <button type="button" class="cute-btn green" onclick="openModal('msgModal')">💌 傳個訊息</button>
+            <button type="button" class="cute-btn pink" onclick="nextPhoto()">🔄 換一張</button>
+            <button type="button" class="cute-btn yellow" onclick="togglePanel('notePanel')">📝 隨手筆記</button>
+            <button type="button" class="cute-btn blue" onclick="togglePanel('musicPanel')">🎧 正在聽的歌</button>
+            <button type="button" class="cute-btn green" onclick="togglePanel('msgPanel')">💌 傳個訊息</button>
         </nav>
 
-        <!-- 2x2 拍立得風小圖卡 -->
-        <section class="photo-grid" id="photoGrid">
-            <div class="polaroid">
-                <img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=500&q=80" alt="小貓">
-                <span>發呆時間 🐾</span>
+        <!-- 點擊按鈕後才展開的互動面板區（預設全部隱藏） -->
+        <section id="notePanel" class="panel yellow-border" hidden>
+            <div class="panel-header">
+                <strong>📝 隨手小便條</strong>
+                <button type="button" class="close-tag" onclick="closeAllPanels()">收起 ✕</button>
             </div>
-            <div class="polaroid">
-                <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=500&q=80" alt="咖啡">
-                <span>下午茶補給 ☕</span>
-            </div>
-            <div class="polaroid">
-                <img src="https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?auto=format&fit=crop&w=500&q=80" alt="植物">
-                <span>桌邊小盆栽 🌿</span>
-            </div>
-            <div class="polaroid">
-                <img src="https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&w=500&q=80" alt="書本">
-                <span>週末閱讀 📖</span>
-            </div>
-        </section>
-    </main>
-
-    <!-- 彈窗 1：隨手筆記 -->
-    <div class="modal-overlay" id="noteModal" onclick="closeOnOutside(event, 'noteModal')">
-        <div class="modal-card">
-            <button class="close-btn" onclick="closeModal('noteModal')">✕</button>
-            <h3>📝 隨手小便條</h3>
-            <p class="modal-desc">寫下今天的靈感，會自動幫你存在瀏覽器裡喔！</p>
-            <textarea id="noteInput" rows="5" placeholder="在這裡輸入文字..."></textarea>
-            <button class="action-btn yellow" onclick="saveNote()">儲存筆記 ✨</button>
+            <textarea id="noteInput" rows="4" placeholder="在這裡寫下今天的靈感，會自動儲存在瀏覽器裡..."></textarea>
+            <button type="button" class="action-btn yellow" onclick="saveNote()">儲存筆記 ✨</button>
             <p class="status-msg" id="noteStatus"></p>
-        </div>
-    </div>
+        </section>
 
-    <!-- 彈窗 2：正在聽的歌 -->
-    <div class="modal-overlay" id="musicModal" onclick="closeOnOutside(event, 'musicModal')">
-        <div class="modal-card">
-            <button class="close-btn" onclick="closeModal('musicModal')">✕</button>
-            <h3>🎧 今日循環播放</h3>
+        <section id="musicPanel" class="panel blue-border" hidden>
+            <div class="panel-header">
+                <strong>🎧 今日循環播放</strong>
+                <button type="button" class="close-tag" onclick="closeAllPanels()">收起 ✕</button>
+            </div>
             <div class="music-box">
-                <div class="vinyl">💿</div>
+                <span class="vinyl">💿</span>
                 <div>
                     <strong>Lo-Fi 寫扣專用純音樂</strong>
                     <p>適合配著雨聲與熱奶茶一起聽 🎶</p>
                 </div>
             </div>
             <a href="https://www.youtube.com/results?search_query=lofi+hip+hop+radio" target="_blank" class="action-btn blue">前往 YouTube 聽歌 ↗</a>
-        </div>
-    </div>
+        </section>
 
-    <!-- 彈窗 3：傳個訊息 -->
-    <div class="modal-overlay" id="msgModal" onclick="closeOnOutside(event, 'msgModal')">
-        <div class="modal-card">
-            <button class="close-btn" onclick="closeModal('msgModal')">✕</button>
-            <h3>💌 丟個小紙條給我</h3>
+        <section id="msgPanel" class="panel green-border" hidden>
+            <div class="panel-header">
+                <strong>💌 丟個小紙條給我</strong>
+                <button type="button" class="close-tag" onclick="closeAllPanels()">收起 ✕</button>
+            </div>
             <form onsubmit="sendMessage(event)">
                 <input type="text" id="senderInput" placeholder="你的暱稱（選填）">
                 <textarea id="msgInput" rows="3" placeholder="想說什麼都可以..." required></textarea>
                 <button type="submit" class="action-btn green">發送紙條 🚀</button>
             </form>
             <p class="status-msg" id="msgStatus"></p>
-        </div>
-    </div>
+        </section>
 
-    <!-- 互動功能程式碼 (JavaScript) -->
+        <!-- 單張拍立得展示區 -->
+        <section class="single-photo-wrap">
+            <div class="polaroid">
+                <img id="mainPhoto" src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=700&q=80" alt="日常照片">
+                <div class="photo-caption">
+                    <span id="photoTitle">發呆時間 🐾</span>
+                    <span id="photoCounter" class="counter">1 / 8</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
     <script>
-        // 1. 開啟與關閉彈窗
-        function openModal(id) {
-            document.getElementById(id).classList.add('active');
+        // 8 張精選可愛日常照片庫
+        const photos = [
+            {
+                url: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=700&q=80",
+                title: "發呆時間 🐾"
+            },
+            {
+                url: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=700&q=80",
+                title: "下午茶補給 ☕"
+            },
+            {
+                url: "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?auto=format&fit=crop&w=700&q=80",
+                title: "桌邊小盆栽 🌿"
+            },
+            {
+                url: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&w=700&q=80",
+                title: "週末閱讀 📖"
+            },
+            {
+                url: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=700&q=80",
+                title: "散步遇到的小狗 🐶"
+            },
+            {
+                url: "https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=700&q=80",
+                title: "甜甜圈療癒日 🍩"
+            },
+            {
+                url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=700&q=80",
+                title: "去看海吹風 🌊"
+            },
+            {
+                url: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=700&q=80",
+                title: "隨手塗鴉色彩 🎨"
+            }
+        ];
+
+        let currentIndex = 0;
+
+        // 切換下一張照片
+        function nextPhoto() {
+            currentIndex = (currentIndex + 1) % photos.length;
+            const img = document.getElementById('mainPhoto');
+            const title = document.getElementById('photoTitle');
+            const counter = document.getElementById('photoCounter');
+
+            img.src = photos[currentIndex].url;
+            title.textContent = photos[currentIndex].title;
+            counter.textContent = `${currentIndex + 1} / ${photos.length}`;
         }
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('active');
-        }
-        function closeOnOutside(event, id) {
-            if (event.target.id === id) {
-                closeModal(id);
+
+        // 點擊按鈕顯示/隱藏對應面板（同時只會展開一個）
+        function togglePanel(panelId) {
+            const target = document.getElementById(panelId);
+            const isCurrentlyHidden = target.hidden;
+
+            closeAllPanels();
+
+            if (isCurrentlyHidden) {
+                target.hidden = false;
             }
         }
 
-        // 2. 隨機洗牌四張照片順序
-        function shufflePhotos() {
-            const grid = document.getElementById('photoGrid');
-            const items = Array.from(grid.children);
-            items.sort(() => Math.random() - 0.5);
-            items.forEach(item => grid.appendChild(item));
-            
-            const mood = document.getElementById('moodText');
-            mood.textContent = "已幫你重新排列日常碎片啦 ✨";
+        function closeAllPanels() {
+            document.querySelectorAll('.panel').forEach(panel => {
+                panel.hidden = true;
+            });
         }
 
-        // 3. 隨手筆記：讀取與儲存到瀏覽器 localStorage
+        // 讀取與儲存筆記
         window.onload = function() {
             const savedNote = localStorage.getItem('myCuteNote');
             if (savedNote) {
@@ -126,7 +157,7 @@
             setTimeout(() => status.textContent = "", 2500);
         }
 
-        // 4. 傳送小紙條回饋
+        // 傳送小紙條
         function sendMessage(event) {
             event.preventDefault();
             const status = document.getElementById('msgStatus');
@@ -134,8 +165,8 @@
             document.getElementById('msgInput').value = "";
             setTimeout(() => {
                 status.textContent = "";
-                closeModal('msgModal');
-            }, 1800);
+                closeAllPanels();
+            }, 1600);
         }
     </script>
 

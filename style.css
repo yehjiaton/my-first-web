@@ -17,12 +17,12 @@ body {
     padding: 32px 16px;
 }
 
-/* 主卡片容器 */
+/* 置中主卡片 */
 .card-box {
     background-color: #ffffff;
     width: 100%;
-    max-width: 560px;
-    padding: 36px 28px;
+    max-width: 480px;
+    padding: 34px 26px;
     border-radius: 32px;
     border: 3px solid #f2e6df;
     box-shadow: 0 12px 0 #f2e6df;
@@ -32,22 +32,22 @@ body {
 .sticker {
     font-size: 1.8rem;
     letter-spacing: 6px;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
 }
 
 .mood-text {
-    font-size: 1rem;
+    font-size: 0.98rem;
     font-weight: 500;
     color: #7a6f69;
-    margin-bottom: 28px;
+    margin-bottom: 24px;
 }
 
-/* 馬卡龍按鈕列 */
+/* 四顆馬卡龍按鈕 */
 .btn-group {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
-    margin-bottom: 32px;
+    margin-bottom: 24px;
 }
 
 .cute-btn {
@@ -57,7 +57,7 @@ body {
     color: #5c5450;
     font-weight: 700;
     font-size: 0.92rem;
-    padding: 12px 16px;
+    padding: 12px 14px;
     border-radius: 18px;
     transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
@@ -77,128 +77,74 @@ body {
     box-shadow: none;
 }
 
-/* 拍立得圖片區 */
-.photo-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-}
-
-.polaroid {
+/* 點擊按鈕後才展開的互動區塊 */
+.panel {
     background-color: #fffaf7;
-    padding: 10px 10px 14px;
-    border-radius: 20px;
-    border: 2px solid #f5ebe6;
-    transition: transform 0.2s ease;
+    border-radius: 22px;
+    padding: 18px;
+    margin-bottom: 24px;
+    text-align: left;
+    border: 2px solid #f2e6df;
+    animation: fadeIn 0.2s ease;
 }
 
-.polaroid:hover { transform: rotate(-2deg) scale(1.02); }
-.polaroid:nth-child(even):hover { transform: rotate(2deg) scale(1.02); }
-
-.polaroid img {
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    object-fit: cover;
-    border-radius: 14px;
-    display: block;
-    margin-bottom: 10px;
-}
-
-.polaroid span {
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: #8c7f79;
-}
-
-/* --- 彈出視窗樣式 --- */
-.modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(92, 84, 80, 0.35);
-    backdrop-filter: blur(3px);
+.panel[hidden] {
     display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    z-index: 100;
 }
 
-.modal-overlay.active {
+.panel.yellow-border { border-color: #fde68a; }
+.panel.blue-border { border-color: #bae6fd; }
+.panel.green-border { border-color: #bbf7d0; }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.panel-header {
     display: flex;
-}
-
-.modal-card {
-    background: #ffffff;
-    width: 100%;
-    max-width: 400px;
-    padding: 28px 24px;
-    border-radius: 28px;
-    border: 3px solid #f2e6df;
-    box-shadow: 0 10px 0 #f2e6df;
-    position: relative;
-    text-align: center;
-    animation: popIn 0.2s ease;
-}
-
-@keyframes popIn {
-    from { transform: scale(0.9); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-}
-
-.close-btn {
-    position: absolute;
-    top: 16px;
-    right: 18px;
-    background: #f5ebe6;
-    border: none;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    color: #7a6f69;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.modal-card h3 {
-    margin-bottom: 10px;
-    font-size: 1.15rem;
-}
-
-.modal-desc {
-    font-size: 0.85rem;
-    color: #8c7f79;
-    margin-bottom: 14px;
-}
-
-.modal-card input,
-.modal-card textarea {
-    width: 100%;
-    padding: 12px;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 12px;
+    font-size: 0.95rem;
+}
+
+.close-tag {
+    background: #f2e6df;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    color: #7a6f69;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.panel input,
+.panel textarea {
+    width: 100%;
+    padding: 10px 12px;
+    margin-bottom: 10px;
     border: 2px solid #f2e6df;
     border-radius: 14px;
     font-family: inherit;
-    font-size: 0.92rem;
+    font-size: 0.9rem;
     color: #5c5450;
-    background: #fffaf7;
+    background: #ffffff;
     outline: none;
     resize: none;
 }
 
-.modal-card input:focus,
-.modal-card textarea:focus {
-    border-color: #d6c5bc;
-}
-
 .action-btn {
-    display: inline-block;
+    display: block;
     width: 100%;
-    padding: 11px;
+    text-align: center;
+    padding: 10px;
     border: none;
     border-radius: 14px;
     font-family: inherit;
     font-weight: 700;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     color: #5c5450;
     text-decoration: none;
     cursor: pointer;
@@ -211,16 +157,17 @@ body {
 .music-box {
     display: flex;
     align-items: center;
-    gap: 14px;
-    background: #f8fafc;
-    padding: 14px;
-    border-radius: 16px;
-    margin: 14px 0 18px;
-    text-align: left;
+    gap: 12px;
+    background: #ffffff;
+    padding: 12px;
+    border-radius: 14px;
+    margin-bottom: 12px;
+    border: 1px solid #e0f2fe;
 }
 
 .vinyl {
-    font-size: 2.2rem;
+    font-size: 2rem;
+    display: inline-block;
     animation: spin 4s linear infinite;
 }
 
@@ -229,22 +176,59 @@ body {
 }
 
 .music-box p {
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     color: #7a6f69;
     margin-top: 2px;
 }
 
 .status-msg {
-    margin-top: 10px;
-    font-size: 0.88rem;
+    margin-top: 8px;
+    font-size: 0.85rem;
     font-weight: 700;
     color: #16a34a;
-    min-height: 20px;
+    text-align: center;
 }
 
-@media (max-width: 460px) {
-    .btn-group,
-    .photo-grid {
+/* 單張拍立得大圖區 */
+.single-photo-wrap {
+    width: 100%;
+}
+
+.polaroid {
+    background-color: #fffaf7;
+    padding: 12px 12px 16px;
+    border-radius: 24px;
+    border: 2px solid #f5ebe6;
+}
+
+.polaroid img {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: 16px;
+    display: block;
+    margin-bottom: 12px;
+}
+
+.photo-caption {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #7a6f69;
+}
+
+.counter {
+    font-size: 0.8rem;
+    background: #f2e6df;
+    padding: 2px 10px;
+    border-radius: 999px;
+}
+
+@media (max-width: 420px) {
+    .btn-group {
         grid-template-columns: 1fr;
     }
 }
