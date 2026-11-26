@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>小角落 ✨</title>
-    <!-- 加上 ?v=3 強制瀏覽器讀取最新樣式表 -->
     <link rel="stylesheet" href="style.css?v=3">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
@@ -20,7 +19,7 @@
             <button type="button" class="cute-btn yellow" onclick="openModal('noteModal')">📝 隨手筆記</button>
             <button type="button" class="cute-btn blue" onclick="openModal('musicModal')">🎧 正在聽的歌</button>
             <button type="button" class="cute-btn green" onclick="openModal('msgModal')">💌 傳個訊息</button>
-            <button type="button" class="cute-btn purple full-span" onclick="openHistoryModal()">📖 回顧筆記與訊息</button>
+            <button type="button" class="cute-btn purple full-span" onclick="openHistoryModal()">📖 大家的手帳回顧本</button>
         </nav>
 
         <!-- 單張拍立得展示區 -->
@@ -40,9 +39,9 @@
         <div class="modal-card yellow-border">
             <button type="button" class="close-btn" onclick="closeModal('noteModal')">✕</button>
             <h3>📝 隨手小便條</h3>
-            <p class="modal-desc">每次儲存都會新增一則紀錄，之後可點「回顧」查看！</p>
-            <textarea id="noteInput" rows="4" placeholder="寫下現在的想法或靈感..." required></textarea>
-            <button type="button" class="action-btn yellow" onclick="saveNote()">儲存這則筆記 ✨</button>
+            <p class="modal-desc">寫下的內容會同步到雲端，有網址的人都能看見喔！</p>
+            <textarea id="noteInput" rows="4" placeholder="分享現在的想法或靈感..." required></textarea>
+            <button type="button" class="action-btn yellow" onclick="saveNote()">發佈這則筆記 ✨</button>
             <p class="status-msg" id="noteStatus"></p>
         </div>
     </div>
@@ -67,20 +66,19 @@
     <div class="modal-overlay" id="msgModal" onclick="closeOnOutside(event, 'msgModal')">
         <div class="modal-card green-border">
             <button type="button" class="close-btn" onclick="closeModal('msgModal')">✕</button>
-            <h3>💌 丟個小紙條給我</h3>
+            <h3>💌 丟個小紙條給大家</h3>
             <form onsubmit="sendMessage(event)">
                 <input type="text" id="senderInput" placeholder="你的暱稱（沒填會顯示匿名小可愛）">
-                <textarea id="msgInput" rows="3" placeholder="想說什麼都可以..." required></textarea>
+                <textarea id="msgInput" rows="3" placeholder="想對大家說什麼都可以..." required></textarea>
                 <button type="submit" class="action-btn green">發送紙條 🚀</button>
             </form>
             <p class="status-msg" id="msgStatus"></p>
         </div>
     </div>
 
-    <!-- 彈窗 4：升級版手帳風時光回顧本 -->
+    <!-- 彈窗 4：雲端連線版時光回顧本 -->
     <div class="modal-overlay" id="historyModal" onclick="closeOnOutside(event, 'historyModal')">
         <div class="modal-card history-card">
-            <!-- 頂部手帳活頁孔裝飾 -->
             <div class="binder-rings">
                 <span></span><span></span><span></span><span></span><span></span>
             </div>
@@ -88,8 +86,8 @@
             <button type="button" class="close-btn" onclick="closeModal('historyModal')">✕</button>
             
             <div class="history-header">
-                <span class="history-badge">✨ MEMORY BOOK</span>
-                <h3>📖 時光回顧本</h3>
+                <span class="history-badge">☁️ LIVE SYNC · 雲端即時共享</span>
+                <h3>📖 大家的手帳回顧本</h3>
             </div>
             
             <!-- 膠囊切換器 -->
@@ -107,6 +105,186 @@
         </div>
     </div>
 
+    <!-- 引入 Firebase 即時資料庫 SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+        const firebaseConfig = {
+            databaseURL: "https://my-first-web-87135-default-rtdb.firebaseio.com"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const notesRef = ref(db, 'shared_notes');
+        const msgsRef = ref(db, 'shared_msgs');
+
+        let notesData = [];
+        let msgsData = [];
+        let currentTab = 'notes';
+
+        onValue(notesRef, (snapshot) => {
+            const val = snapshot.val();
+            notesData = val ? Object.entries(val).map(([key, item]) => ({ key, ...item })).reverse() : [];
+            renderHistory();
+        });
+
+        onValue(msgsRef, (snapshot) => {
+            const val = snapshot.val();
+            msgsData = val ? Object.entries(val).map(([key, item]) => ({ key, ...item })).reverse() : [];
+            renderHistory();
+        });
+
+        function getNowTime() {
+            const now = new Date();
+            const y = now.getFullYear();
+            const m = String(now.getMonth() + 1).padStart(2, '0');
+            const d = String(now.getDate()).padStart(2, '0');
+            const hh = String(now.getHours()).padStart(2, '0');
+            const mm = String(now.getMinutes()).padStart(2, '0');
+            return `${y}/${m}/${d} · ${hh}:${mm}`;
+        }
+
+        window.saveNote = async function() {
+            const input = document.getElementById('noteInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const status = document.getElementById('noteStatus');
+            status.textContent = "傳送到雲端中... ☁️";
+
+            try {
+                await push(notesRef, {
+                    text: text,
+                    time: getNowTime()
+                });
+                input.value = "";
+                status.textContent = "已發佈！大家都能看到囉 🧸";
+                setTimeout(() => {
+                    status.textContent = "";
+                    closeModal('noteModal');
+                }, 1100);
+            } catch (err) {
+                status.textContent = "傳送失敗，請確認 Firebase 權限設定 ⚠️";
+            }
+        };
+
+        window.sendMessage = async function(event) {
+            event.preventDefault();
+            const senderInput = document.getElementById('senderInput');
+            const msgInput = document.getElementById('msgInput');
+            
+            const sender = senderInput.value.trim() || "匿名小可愛";
+            const text = msgInput.value.trim();
+            if (!text) return;
+
+            const status = document.getElementById('msgStatus');
+            status.textContent = "紙條飛行中... 🚀";
+
+            try {
+                await push(msgsRef, {
+                    sender: sender,
+                    text: text,
+                    time: getNowTime()
+                });
+                senderInput.value = "";
+                msgInput.value = "";
+                status.textContent = "已貼到大家的回顧本！💌";
+                setTimeout(() => {
+                    status.textContent = "";
+                    closeModal('msgModal');
+                }, 1100);
+            } catch (err) {
+                status.textContent = "發送失敗，請確認 Firebase 權限設定 ⚠️";
+            }
+        };
+
+        window.switchTab = function(tab) {
+            currentTab = tab;
+            document.getElementById('tabNotes').classList.toggle('active', tab === 'notes');
+            document.getElementById('tabMsgs').classList.toggle('active', tab === 'msgs');
+            renderHistory();
+        };
+
+        window.openHistoryModal = function() {
+            openModal('historyModal');
+            renderHistory();
+        };
+
+        window.deleteItem = function(type, key) {
+            if (type === 'notes') {
+                remove(ref(db, `shared_notes/${key}`));
+            } else {
+                remove(ref(db, `shared_msgs/${key}`));
+            }
+        };
+
+        function renderHistory() {
+            document.getElementById('noteCount').textContent = notesData.length;
+            document.getElementById('msgCount').textContent = msgsData.length;
+
+            const listEl = document.getElementById('historyList');
+            listEl.innerHTML = "";
+
+            if (currentTab === 'notes') {
+                if (notesData.length === 0) {
+                    listEl.innerHTML = `
+                        <div class="empty-box">
+                            <div class="empty-icon">📒</div>
+                            <p>雲端筆記本還是空的呢～</p>
+                            <span>點「📝 隨手筆記」寫下第一張跟大家分享吧！</span>
+                        </div>`;
+                    return;
+                }
+                notesData.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'diary-card note-style';
+                    div.innerHTML = `
+                        <div class="tape"></div>
+                        <div class="diary-top">
+                            <span class="time-chip">🗓️ ${item.time}</span>
+                            <button type="button" class="del-icon-btn" title="刪除" onclick="deleteItem('notes', '${item.key}')">✕</button>
+                        </div>
+                        <p class="diary-body"></p>
+                    `;
+                    div.querySelector('.diary-body').textContent = item.text;
+                    listEl.appendChild(div);
+                });
+            } else {
+                if (msgsData.length === 0) {
+                    listEl.innerHTML = `
+                        <div class="empty-box">
+                            <div class="empty-icon">📮</div>
+                            <p>大家還沒投遞紙條喔～</p>
+                            <span>點「💌 傳個訊息」留下第一封吧！</span>
+                        </div>`;
+                    return;
+                }
+                msgsData.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'diary-card msg-style';
+                    div.innerHTML = `
+                        <div class="diary-top">
+                            <div class="sender-badge">
+                                <span class="mini-avatar">🐻</span>
+                                <strong class="sender-name"></strong>
+                            </div>
+                            <div class="right-meta">
+                                <span class="time-text">${item.time}</span>
+                                <button type="button" class="del-icon-btn" title="刪除" onclick="deleteItem('msgs', '${item.key}')">✕</button>
+                            </div>
+                        </div>
+                        <p class="diary-body"></p>
+                    `;
+                    div.querySelector('.sender-name').textContent = item.sender;
+                    div.querySelector('.diary-body').textContent = item.text;
+                    listEl.appendChild(div);
+                });
+            }
+        }
+    </script>
+
+    <!-- 基礎介面互動腳本 -->
     <script>
         const photos = [
             { url: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=700&q=80", title: "發呆時間 🐾" },
@@ -120,7 +298,6 @@
         ];
 
         let currentIndex = 0;
-        let currentTab = 'notes';
 
         function nextPhoto() {
             currentIndex = (currentIndex + 1) % photos.length;
@@ -141,163 +318,6 @@
             if (event.target.id === id) {
                 closeModal(id);
             }
-        }
-
-        function getNowTime() {
-            const now = new Date();
-            const y = now.getFullYear();
-            const m = String(now.getMonth() + 1).padStart(2, '0');
-            const d = String(now.getDate()).padStart(2, '0');
-            const hh = String(now.getHours()).padStart(2, '0');
-            const mm = String(now.getMinutes()).padStart(2, '0');
-            return `${y}/${m}/${d} · ${hh}:${mm}`;
-        }
-
-        function getNotes() {
-            return JSON.parse(localStorage.getItem('cuteNotesList') || '[]');
-        }
-
-        function getMessages() {
-            return JSON.parse(localStorage.getItem('cuteMsgsList') || '[]');
-        }
-
-        function saveNote() {
-            const input = document.getElementById('noteInput');
-            const text = input.value.trim();
-            if (!text) return;
-
-            const notes = getNotes();
-            notes.unshift({
-                id: Date.now(),
-                text: text,
-                time: getNowTime()
-            });
-            localStorage.setItem('cuteNotesList', JSON.stringify(notes));
-
-            input.value = "";
-            const status = document.getElementById('noteStatus');
-            status.textContent = "已貼進時光回顧本囉！🧸";
-            setTimeout(() => {
-                status.textContent = "";
-                closeModal('noteModal');
-            }, 1100);
-        }
-
-        function sendMessage(event) {
-            event.preventDefault();
-            const senderInput = document.getElementById('senderInput');
-            const msgInput = document.getElementById('msgInput');
-            
-            const sender = senderInput.value.trim() || "匿名小可愛";
-            const text = msgInput.value.trim();
-            if (!text) return;
-
-            const msgs = getMessages();
-            msgs.unshift({
-                id: Date.now(),
-                sender: sender,
-                text: text,
-                time: getNowTime()
-            });
-            localStorage.setItem('cuteMsgsList', JSON.stringify(msgs));
-
-            senderInput.value = "";
-            msgInput.value = "";
-            const status = document.getElementById('msgStatus');
-            status.textContent = "紙條已收進回顧本！💌";
-            setTimeout(() => {
-                status.textContent = "";
-                closeModal('msgModal');
-            }, 1100);
-        }
-
-        function openHistoryModal() {
-            openModal('historyModal');
-            renderHistory();
-        }
-
-        function switchTab(tab) {
-            currentTab = tab;
-            document.getElementById('tabNotes').classList.toggle('active', tab === 'notes');
-            document.getElementById('tabMsgs').classList.toggle('active', tab === 'msgs');
-            renderHistory();
-        }
-
-        function renderHistory() {
-            const notes = getNotes();
-            const msgs = getMessages();
-            document.getElementById('noteCount').textContent = notes.length;
-            document.getElementById('msgCount').textContent = msgs.length;
-
-            const listEl = document.getElementById('historyList');
-            listEl.innerHTML = "";
-
-            if (currentTab === 'notes') {
-                if (notes.length === 0) {
-                    listEl.innerHTML = `
-                        <div class="empty-box">
-                            <div class="empty-icon">📒</div>
-                            <p>這裡還空空的呢～</p>
-                            <span>點「📝 隨手筆記」寫下第一張小便條吧！</span>
-                        </div>`;
-                    return;
-                }
-                notes.forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = 'diary-card note-style';
-                    div.innerHTML = `
-                        <div class="tape"></div>
-                        <div class="diary-top">
-                            <span class="time-chip">🗓️ ${item.time}</span>
-                            <button type="button" class="del-icon-btn" title="刪除" onclick="deleteItem('notes', ${item.id})">✕</button>
-                        </div>
-                        <p class="diary-body"></p>
-                    `;
-                    div.querySelector('.diary-body').textContent = item.text;
-                    listEl.appendChild(div);
-                });
-            } else {
-                if (msgs.length === 0) {
-                    listEl.innerHTML = `
-                        <div class="empty-box">
-                            <div class="empty-icon">📮</div>
-                            <p>信箱還沒收到紙條喔～</p>
-                            <span>點「💌 傳個訊息」投遞第一封吧！</span>
-                        </div>`;
-                    return;
-                }
-                msgs.forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = 'diary-card msg-style';
-                    div.innerHTML = `
-                        <div class="diary-top">
-                            <div class="sender-badge">
-                                <span class="mini-avatar">🐻</span>
-                                <strong class="sender-name"></strong>
-                            </div>
-                            <div class="right-meta">
-                                <span class="time-text">${item.time}</span>
-                                <button type="button" class="del-icon-btn" title="刪除" onclick="deleteItem('msgs', ${item.id})">✕</button>
-                            </div>
-                        </div>
-                        <p class="diary-body"></p>
-                    `;
-                    div.querySelector('.sender-name').textContent = item.sender;
-                    div.querySelector('.diary-body').textContent = item.text;
-                    listEl.appendChild(div);
-                });
-            }
-        }
-
-        function deleteItem(type, id) {
-            if (type === 'notes') {
-                const updated = getNotes().filter(item => item.id !== id);
-                localStorage.setItem('cuteNotesList', JSON.stringify(updated));
-            } else {
-                const updated = getMessages().filter(item => item.id !== id);
-                localStorage.setItem('cuteMsgsList', JSON.stringify(updated));
-            }
-            renderHistory();
         }
     </script>
 
