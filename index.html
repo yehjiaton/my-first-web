@@ -13,7 +13,7 @@
         <div class="sticker">🧸 ☁️ 🌱</div>
         <p class="mood-text">今天也是慢慢寫扣、喝杯奶茶的一天</p>
 
-        <!-- 五顆可愛按鈕（第 5 顆回顧紀錄自動橫跨兩欄） -->
+        <!-- 五顆可愛按鈕 -->
         <nav class="btn-group">
             <button type="button" class="cute-btn pink" onclick="nextPhoto()">🔄 換一張</button>
             <button type="button" class="cute-btn yellow" onclick="openModal('noteModal')">📝 隨手筆記</button>
@@ -76,16 +76,24 @@
         </div>
     </div>
 
-    <!-- 彈窗 4：回顧筆記與訊息 -->
+    <!-- 彈窗 4：升級版手帳風時光回顧本 -->
     <div class="modal-overlay" id="historyModal" onclick="closeOnOutside(event, 'historyModal')">
-        <div class="modal-card purple-border history-card">
+        <div class="modal-card history-card">
             <button type="button" class="close-btn" onclick="closeModal('historyModal')">✕</button>
-            <h3>📖 時光回顧本</h3>
             
-            <!-- 切換分頁按鈕 -->
-            <div class="tab-bar">
-                <button type="button" id="tabNotes" class="tab-btn active" onclick="switchTab('notes')">📝 筆記紀錄 (<span id="noteCount">0</span>)</button>
-                <button type="button" id="tabMsgs" class="tab-btn" onclick="switchTab('msgs')">💌 收到紙條 (<span id="msgCount">0</span>)</button>
+            <div class="history-header">
+                <span class="history-badge">✨ MEMORY BOOK</span>
+                <h3>📖 時光回顧本</h3>
+            </div>
+            
+            <!-- 膠囊切換器 -->
+            <div class="segmented-tabs">
+                <button type="button" id="tabNotes" class="seg-btn active" onclick="switchTab('notes')">
+                    📝 筆記 <span class="count-pill" id="noteCount">0</span>
+                </button>
+                <button type="button" id="tabMsgs" class="seg-btn" onclick="switchTab('msgs')">
+                    💌 紙條 <span class="count-pill" id="msgCount">0</span>
+                </button>
             </div>
 
             <!-- 紀錄清單顯示區 -->
@@ -94,7 +102,6 @@
     </div>
 
     <script>
-        // 8 張精選可愛日常照片庫
         const photos = [
             { url: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=700&q=80", title: "發呆時間 🐾" },
             { url: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=700&q=80", title: "下午茶補給 ☕" },
@@ -109,7 +116,6 @@
         let currentIndex = 0;
         let currentTab = 'notes';
 
-        // 切換下一張照片
         function nextPhoto() {
             currentIndex = (currentIndex + 1) % photos.length;
             document.getElementById('mainPhoto').src = photos[currentIndex].url;
@@ -117,7 +123,6 @@
             document.getElementById('photoCounter').textContent = `${currentIndex + 1} / ${photos.length}`;
         }
 
-        // 開啟與關閉彈窗
         function openModal(id) {
             document.getElementById(id).classList.add('active');
         }
@@ -132,7 +137,6 @@
             }
         }
 
-        // 取得現在時間字串 (例如：2026/11/26 14:25)
         function getNowTime() {
             const now = new Date();
             const y = now.getFullYear();
@@ -140,10 +144,9 @@
             const d = String(now.getDate()).padStart(2, '0');
             const hh = String(now.getHours()).padStart(2, '0');
             const mm = String(now.getMinutes()).padStart(2, '0');
-            return `${y}/${m}/${d} ${hh}:${mm}`;
+            return `${y}/${m}/${d} · ${hh}:${mm}`;
         }
 
-        // 讀取紀錄陣列
         function getNotes() {
             return JSON.parse(localStorage.getItem('cuteNotesList') || '[]');
         }
@@ -152,7 +155,6 @@
             return JSON.parse(localStorage.getItem('cuteMsgsList') || '[]');
         }
 
-        // 1. 儲存新筆記（追加到最前面）
         function saveNote() {
             const input = document.getElementById('noteInput');
             const text = input.value.trim();
@@ -168,14 +170,13 @@
 
             input.value = "";
             const status = document.getElementById('noteStatus');
-            status.textContent = "已存進回顧本囉！🧸";
+            status.textContent = "已貼進時光回顧本囉！🧸";
             setTimeout(() => {
                 status.textContent = "";
                 closeModal('noteModal');
-            }, 1200);
+            }, 1100);
         }
 
-        // 2. 發送新訊息（追加到最前面）
         function sendMessage(event) {
             event.preventDefault();
             const senderInput = document.getElementById('senderInput');
@@ -197,14 +198,13 @@
             senderInput.value = "";
             msgInput.value = "";
             const status = document.getElementById('msgStatus');
-            status.textContent = "紙條已投遞進回顧本！💌";
+            status.textContent = "紙條已收進回顧本！💌";
             setTimeout(() => {
                 status.textContent = "";
                 closeModal('msgModal');
-            }, 1200);
+            }, 1100);
         }
 
-        // 3. 開啟回顧彈窗並渲染清單
         function openHistoryModal() {
             openModal('historyModal');
             renderHistory();
@@ -228,45 +228,61 @@
 
             if (currentTab === 'notes') {
                 if (notes.length === 0) {
-                    listEl.innerHTML = `<p class="empty-tip">還沒有寫過筆記喔，點「📝 隨手筆記」記下第一則吧！</p>`;
+                    listEl.innerHTML = `
+                        <div class="empty-box">
+                            <div class="empty-icon">📒</div>
+                            <p>這裡還空空的呢～</p>
+                            <span>點「📝 隨手筆記」寫下第一張小便條吧！</span>
+                        </div>`;
                     return;
                 }
                 notes.forEach(item => {
                     const div = document.createElement('div');
-                    div.className = 'history-item yellow-bg';
+                    div.className = 'diary-card note-style';
                     div.innerHTML = `
-                        <div class="item-meta">
-                            <span>🕒 ${item.time}</span>
-                            <button type="button" class="del-btn" onclick="deleteItem('notes', ${item.id})">刪除</button>
+                        <div class="tape"></div>
+                        <div class="diary-top">
+                            <span class="time-chip">🗓️ ${item.time}</span>
+                            <button type="button" class="del-icon-btn" title="刪除" onclick="deleteItem('notes', ${item.id})">✕</button>
                         </div>
-                        <p class="item-text"></p>
+                        <p class="diary-body"></p>
                     `;
-                    div.querySelector('.item-text').textContent = item.text;
+                    div.querySelector('.diary-body').textContent = item.text;
                     listEl.appendChild(div);
                 });
             } else {
                 if (msgs.length === 0) {
-                    listEl.innerHTML = `<p class="empty-tip">信箱還是空的，點「💌 傳個訊息」留一張紙條吧！</p>`;
+                    listEl.innerHTML = `
+                        <div class="empty-box">
+                            <div class="empty-icon">📮</div>
+                            <p>信箱還沒收到紙條喔～</p>
+                            <span>點「💌 傳個訊息」投遞第一封吧！</span>
+                        </div>`;
                     return;
                 }
                 msgs.forEach(item => {
                     const div = document.createElement('div');
-                    div.className = 'history-item green-bg';
+                    div.className = 'diary-card msg-style';
                     div.innerHTML = `
-                        <div class="item-meta">
-                            <span>🧸 <strong class="sender-name"></strong> · ${item.time}</span>
-                            <button type="button" class="del-btn" onclick="deleteItem('msgs', ${item.id})">刪除</button>
+                        <div class="diary-top">
+                            <div class="sender-badge">
+                                <span class="mini-avatar">🐻</span>
+                                <strong class="sender-name"></strong>
+                            </div>
+                            <div class="right-meta">
+                                <span class="time-text">${item.time}</span>
+                                <button type="button" class="del-icon-btn" title="刪除" onclick="deleteItem('msgs', ${item.id})">✕</button>
+                            </div>
                         </div>
-                        <p class="item-text"></p>
+                        <p class="diary-body"></p>
                     `;
                     div.querySelector('.sender-name').textContent = item.sender;
-                    div.querySelector('.item-text').textContent = item.text;
+                    div.querySelector('.diary-body').textContent = item.text;
                     listEl.appendChild(div);
                 });
             }
         }
 
-        // 刪除單筆紀錄
         function deleteItem(type, id) {
             if (type === 'notes') {
                 const updated = getNotes().filter(item => item.id !== id);
