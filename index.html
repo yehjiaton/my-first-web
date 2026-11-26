@@ -5,28 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>小角落 ✨</title>
     <link rel="stylesheet" href="style.css">
-    <!-- 引入可愛圓潤的思源黑體 -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
     <main class="card-box">
-        <!-- 可愛小裝飾圖示 -->
         <div class="sticker">🧸 ☁️ 🌱</div>
+        <p class="mood-text" id="moodText">今天也是慢慢寫扣、喝杯奶茶的一天 🧋</p>
 
-        <!-- 輕鬆無壓力的短句（之後可以用 Git 練習修改這行！） -->
-        <p class="mood-text">今天也是慢慢寫扣、喝杯奶茶的一天 🧋</p>
-
-        <!-- 圓滾滾的快捷按鈕 -->
+        <!-- 可真實操作的四顆按鈕 -->
         <nav class="btn-group">
-            <a href="#" class="cute-btn pink">📸 日常碎片</a>
-            <a href="#" class="cute-btn yellow">📝 隨手筆記</a>
-            <a href="#" class="cute-btn blue">🎧 正在聽的歌</a>
-            <a href="#" class="cute-btn green">💌 傳個訊息</a>
+            <button type="button" class="cute-btn pink" onclick="shufflePhotos()">📸 隨機洗牌照片</button>
+            <button type="button" class="cute-btn yellow" onclick="openModal('noteModal')">📝 隨手筆記</button>
+            <button type="button" class="cute-btn blue" onclick="openModal('musicModal')">🎧 正在聽的歌</button>
+            <button type="button" class="cute-btn green" onclick="openModal('msgModal')">💌 傳個訊息</button>
         </nav>
 
         <!-- 2x2 拍立得風小圖卡 -->
-        <section class="photo-grid">
+        <section class="photo-grid" id="photoGrid">
             <div class="polaroid">
                 <img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=500&q=80" alt="小貓">
                 <span>發呆時間 🐾</span>
@@ -45,6 +41,103 @@
             </div>
         </section>
     </main>
+
+    <!-- 彈窗 1：隨手筆記 -->
+    <div class="modal-overlay" id="noteModal" onclick="closeOnOutside(event, 'noteModal')">
+        <div class="modal-card">
+            <button class="close-btn" onclick="closeModal('noteModal')">✕</button>
+            <h3>📝 隨手小便條</h3>
+            <p class="modal-desc">寫下今天的靈感，會自動幫你存在瀏覽器裡喔！</p>
+            <textarea id="noteInput" rows="5" placeholder="在這裡輸入文字..."></textarea>
+            <button class="action-btn yellow" onclick="saveNote()">儲存筆記 ✨</button>
+            <p class="status-msg" id="noteStatus"></p>
+        </div>
+    </div>
+
+    <!-- 彈窗 2：正在聽的歌 -->
+    <div class="modal-overlay" id="musicModal" onclick="closeOnOutside(event, 'musicModal')">
+        <div class="modal-card">
+            <button class="close-btn" onclick="closeModal('musicModal')">✕</button>
+            <h3>🎧 今日循環播放</h3>
+            <div class="music-box">
+                <div class="vinyl">💿</div>
+                <div>
+                    <strong>Lo-Fi 寫扣專用純音樂</strong>
+                    <p>適合配著雨聲與熱奶茶一起聽 🎶</p>
+                </div>
+            </div>
+            <a href="https://www.youtube.com/results?search_query=lofi+hip+hop+radio" target="_blank" class="action-btn blue">前往 YouTube 聽歌 ↗</a>
+        </div>
+    </div>
+
+    <!-- 彈窗 3：傳個訊息 -->
+    <div class="modal-overlay" id="msgModal" onclick="closeOnOutside(event, 'msgModal')">
+        <div class="modal-card">
+            <button class="close-btn" onclick="closeModal('msgModal')">✕</button>
+            <h3>💌 丟個小紙條給我</h3>
+            <form onsubmit="sendMessage(event)">
+                <input type="text" id="senderInput" placeholder="你的暱稱（選填）">
+                <textarea id="msgInput" rows="3" placeholder="想說什麼都可以..." required></textarea>
+                <button type="submit" class="action-btn green">發送紙條 🚀</button>
+            </form>
+            <p class="status-msg" id="msgStatus"></p>
+        </div>
+    </div>
+
+    <!-- 互動功能程式碼 (JavaScript) -->
+    <script>
+        // 1. 開啟與關閉彈窗
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+        function closeOnOutside(event, id) {
+            if (event.target.id === id) {
+                closeModal(id);
+            }
+        }
+
+        // 2. 隨機洗牌四張照片順序
+        function shufflePhotos() {
+            const grid = document.getElementById('photoGrid');
+            const items = Array.from(grid.children);
+            items.sort(() => Math.random() - 0.5);
+            items.forEach(item => grid.appendChild(item));
+            
+            const mood = document.getElementById('moodText');
+            mood.textContent = "已幫你重新排列日常碎片啦 ✨";
+        }
+
+        // 3. 隨手筆記：讀取與儲存到瀏覽器 localStorage
+        window.onload = function() {
+            const savedNote = localStorage.getItem('myCuteNote');
+            if (savedNote) {
+                document.getElementById('noteInput').value = savedNote;
+            }
+        };
+
+        function saveNote() {
+            const text = document.getElementById('noteInput').value;
+            localStorage.setItem('myCuteNote', text);
+            const status = document.getElementById('noteStatus');
+            status.textContent = "已成功存好囉！🧸";
+            setTimeout(() => status.textContent = "", 2500);
+        }
+
+        // 4. 傳送小紙條回饋
+        function sendMessage(event) {
+            event.preventDefault();
+            const status = document.getElementById('msgStatus');
+            status.textContent = "收到你的小紙條了！謝謝你 💌";
+            document.getElementById('msgInput').value = "";
+            setTimeout(() => {
+                status.textContent = "";
+                closeModal('msgModal');
+            }, 1800);
+        }
+    </script>
 
 </body>
 </html>

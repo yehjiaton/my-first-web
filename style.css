@@ -6,7 +6,6 @@
 
 body {
     font-family: 'Noto Sans TC', sans-serif;
-    /* 柔和的奶油米色點點背景 */
     background-color: #fdf8f5;
     background-image: radial-gradient(#e8dcd5 1.5px, transparent 1.5px);
     background-size: 24px 24px;
@@ -26,11 +25,10 @@ body {
     padding: 36px 28px;
     border-radius: 32px;
     border: 3px solid #f2e6df;
-    box-shadow: 0 12px 0 #f2e6df; /* 可愛的立體厚底陰影 */
+    box-shadow: 0 12px 0 #f2e6df;
     text-align: center;
 }
 
-/* 頂部 Emoji 貼紙 */
 .sticker {
     font-size: 1.8rem;
     letter-spacing: 6px;
@@ -53,7 +51,9 @@ body {
 }
 
 .cute-btn {
-    text-decoration: none;
+    border: none;
+    font-family: inherit;
+    cursor: pointer;
     color: #5c5450;
     font-weight: 700;
     font-size: 0.92rem;
@@ -62,31 +62,19 @@ body {
     transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-/* 四種馬卡龍配色 */
-.cute-btn.pink {
-    background-color: #ffe4e6;
-    box-shadow: 0 4px 0 #fecdd3;
-}
+.cute-btn.pink { background-color: #ffe4e6; box-shadow: 0 4px 0 #fecdd3; }
+.cute-btn.yellow { background-color: #fef3c7; box-shadow: 0 4px 0 #fde68a; }
+.cute-btn.blue { background-color: #e0f2fe; box-shadow: 0 4px 0 #bae6fd; }
+.cute-btn.green { background-color: #dcfce7; box-shadow: 0 4px 0 #bbf7d0; }
 
-.cute-btn.yellow {
-    background-color: #fef3c7;
-    box-shadow: 0 4px 0 #fde68a;
-}
-
-.cute-btn.blue {
-    background-color: #e0f2fe;
-    box-shadow: 0 4px 0 #bae6fd;
-}
-
-.cute-btn.green {
-    background-color: #dcfce7;
-    box-shadow: 0 4px 0 #bbf7d0;
-}
-
-/* 滑鼠移過去像按鈕被按下去的 Q 彈效果 */
 .cute-btn:hover {
     transform: translateY(2px);
     box-shadow: 0 2px 0 rgba(0, 0, 0, 0.08);
+}
+
+.cute-btn:active {
+    transform: translateY(4px);
+    box-shadow: none;
 }
 
 /* 拍立得圖片區 */
@@ -104,14 +92,8 @@ body {
     transition: transform 0.2s ease;
 }
 
-/* 滑鼠移過去微微歪頭 */
-.polaroid:hover {
-    transform: rotate(-2deg) scale(1.02);
-}
-
-.polaroid:nth-child(even):hover {
-    transform: rotate(2deg) scale(1.02);
-}
+.polaroid:hover { transform: rotate(-2deg) scale(1.02); }
+.polaroid:nth-child(even):hover { transform: rotate(2deg) scale(1.02); }
 
 .polaroid img {
     width: 100%;
@@ -128,7 +110,138 @@ body {
     color: #8c7f79;
 }
 
-/* 手機版自動調整為單欄 */
+/* --- 彈出視窗樣式 --- */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(92, 84, 80, 0.35);
+    backdrop-filter: blur(3px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 100;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal-card {
+    background: #ffffff;
+    width: 100%;
+    max-width: 400px;
+    padding: 28px 24px;
+    border-radius: 28px;
+    border: 3px solid #f2e6df;
+    box-shadow: 0 10px 0 #f2e6df;
+    position: relative;
+    text-align: center;
+    animation: popIn 0.2s ease;
+}
+
+@keyframes popIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.close-btn {
+    position: absolute;
+    top: 16px;
+    right: 18px;
+    background: #f5ebe6;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    color: #7a6f69;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.modal-card h3 {
+    margin-bottom: 10px;
+    font-size: 1.15rem;
+}
+
+.modal-desc {
+    font-size: 0.85rem;
+    color: #8c7f79;
+    margin-bottom: 14px;
+}
+
+.modal-card input,
+.modal-card textarea {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 12px;
+    border: 2px solid #f2e6df;
+    border-radius: 14px;
+    font-family: inherit;
+    font-size: 0.92rem;
+    color: #5c5450;
+    background: #fffaf7;
+    outline: none;
+    resize: none;
+}
+
+.modal-card input:focus,
+.modal-card textarea:focus {
+    border-color: #d6c5bc;
+}
+
+.action-btn {
+    display: inline-block;
+    width: 100%;
+    padding: 11px;
+    border: none;
+    border-radius: 14px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #5c5450;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.action-btn.yellow { background: #fef3c7; box-shadow: 0 3px 0 #fde68a; }
+.action-btn.blue { background: #e0f2fe; box-shadow: 0 3px 0 #bae6fd; }
+.action-btn.green { background: #dcfce7; box-shadow: 0 3px 0 #bbf7d0; }
+
+.music-box {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: #f8fafc;
+    padding: 14px;
+    border-radius: 16px;
+    margin: 14px 0 18px;
+    text-align: left;
+}
+
+.vinyl {
+    font-size: 2.2rem;
+    animation: spin 4s linear infinite;
+}
+
+@keyframes spin {
+    100% { transform: rotate(360deg); }
+}
+
+.music-box p {
+    font-size: 0.82rem;
+    color: #7a6f69;
+    margin-top: 2px;
+}
+
+.status-msg {
+    margin-top: 10px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #16a34a;
+    min-height: 20px;
+}
+
 @media (max-width: 460px) {
     .btn-group,
     .photo-grid {
